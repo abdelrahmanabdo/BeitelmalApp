@@ -67,7 +67,7 @@ export default StyleSheet.create({
     color: '#112F4E',
     borderWidth: .5,
     borderRadius: 4,
-    padding: 13,
+    padding: 11,
     marginBottom: 15,
     textAlign: I18nManager.isRTL ? 'right' : 'left',
   },
@@ -96,7 +96,8 @@ export default StyleSheet.create({
     width: '80%',
     alignSelf: 'center',
     height: 25,
-    marginVertical: 15
+    marginTop: 10,
+    marginBottom: 10
   },
   twitterButton: {
     width: '60%',

@@ -48,7 +48,7 @@ const Login = () => {
    * @private
    */
   const submitForm = async (isSocialLogin = false, socialUser = null) => {
-    if (!validate() && !isSocialLogin) return false;
+    if (!isSocialLogin) if (!validate()) return false;
     setIsLoading(true);
     await api
         .post(endpoints.login + '?isSocialLogin=' + isSocialLogin, socialUser ?? data)
@@ -94,7 +94,7 @@ const Login = () => {
      await RNTwitterSignIn.logIn()
       .then(async (data) => {
         const {userName, email} = data;
-        submitForm(true, {email: email ?? userName});
+        submitForm(true, {email});
       });
   };
 

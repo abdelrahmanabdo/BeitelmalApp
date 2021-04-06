@@ -4,9 +4,9 @@ import { useDispatch } from 'react-redux';
 import VideoPlayer from 'react-native-video-player';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { changeFirstTimeStatus } from '../../redux/actions/user';
-const {width,height} = Dimensions.get('window');
 
 import style from './styles';
+const {width,height} = Dimensions.get('window');
 
 const Welcome = ({navigation}) => {
   const dispatch = useDispatch();
@@ -16,19 +16,19 @@ const Welcome = ({navigation}) => {
    * Skip
    */
   const skip = () => {
+    setIsPaused(true);
     dispatch(changeFirstTimeStatus());
-    setIsPaused(true)
     navigation.navigate('Home');
   }
 
   return <View style={style.container}> 
     <VideoPlayer 
       paused={isPaused}
+      autoplay
       videoHeight={height / 2}
       videoWidth={width}
-      video={require('../../assets/videos/welcome.mp4')}
+      video={{uri: 'http://beitelmal.info/public/welcome.mp4'}}
     />
-
     <View style={style.bottomContainer}>
       <Text style={style.title}>
         بيت المال

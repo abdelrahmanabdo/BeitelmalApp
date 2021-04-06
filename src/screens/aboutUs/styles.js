@@ -4,6 +4,7 @@ const {width, height} = Dimensions.get('window');
 export default StyleSheet.create({
   container: {
     backgroundColor: '#FFF',
+    paddingBottom: 30
   },
   header: {
     width: width,
@@ -12,6 +13,7 @@ export default StyleSheet.create({
   content: {
     width: width - 30,
     marginHorizontal: 10,
+    marginBottom: 20,
     backgroundColor: '#fff',
     borderBottomLeftRadius: Platform.OS === 'ios' ? 15 : 5,
     borderBottomRightRadius: Platform.OS === 'ios' ? 15 : 5,

@@ -56,9 +56,8 @@ const Register = () => {
    * @private
    */
   const submitForm = async (userInfo = null) => {
-    if (!validate() && !userInfo) return false;
+    if (!userInfo) if (!validate()) return false;
     setIsLoading(true);
-
     await api
         .post(endpoints.freeRegister, userInfo ?? data)
         .then(async (res) => {
@@ -103,11 +102,11 @@ const Register = () => {
   const twitterAuth = async (err, data) => {
     RNTwitterSignIn.init(TWITTER_COMSUMER_KEY, TWITTER_CONSUMER_SECRET);
      await RNTwitterSignIn.logIn()
-      .then(async (data) => {
+      .then((data) => {
         const {userName, email, userId} = data;
         const userInfo = {
           name: userName,
-          email: email ?? userName,
+          email: email,
           phone: userId
         };
         submitForm(userInfo);
