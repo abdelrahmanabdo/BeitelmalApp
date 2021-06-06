@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   StatusBar,
   NativeModules,
+  Platform,
 } from 'react-native';
 const { RNTwitterSignIn } = NativeModules;
 import AsyncStorage from '@react-native-community/async-storage';
@@ -19,6 +20,10 @@ import { useDispatch } from 'react-redux';
 import { CheckBox } from 'native-base';
 
 import {loginUser} from '../../redux/actions/user';
+import {
+  AppleButton,
+  appleAuth
+} from '@invertase/react-native-apple-authentication';
 
 import api from '../../config/api';
 import endpoints from '../../config/endpoints';
@@ -42,10 +47,14 @@ const Register = () => {
   const validate = () => {
     if (!data.name) 
       return  new Toast({text : I18n.t('nameRequired') , type : 'danger'}), false;
-    if (!data.email) 
-      return  new Toast({text : I18n.t('emailRequired') , type : 'danger'}), false;
     if (!data.phone) 
       return  new Toast({text : I18n.t('mobileRequired') , type : 'danger'}), false;
+    if (!data.phone.match(/^\d/))
+      return  new Toast({text : I18n.t('validPhone') , type : 'danger'}), false;
+    if (!data.email) 
+      return  new Toast({text : I18n.t('emailRequired') , type : 'danger'}), false;
+    if (!data.email.includes('@') || !data.email.includes('.'))
+      return  new Toast({text : I18n.t('validEmail') , type : 'danger'}), false;
     if (!isPolicyAccepted) 
       return  new Toast({text : I18n.t('acceptTermsFirst') , type : 'danger'}), false;
     return true;
@@ -55,34 +64,44 @@ const Register = () => {
    * Submit form.
    * @private
    */
-  const submitForm = async (userInfo = null) => {
-    if (!userInfo) if (!validate()) return false;
+  const submitForm = async () => {
+    if (!validate()) return false;
     setIsLoading(true);
     await api
-        .post(endpoints.freeRegister, userInfo ?? data)
+        .post(endpoints.freeRegister, data)
         .then(async (res) => {
           setIsLoading(false);
           const {STATUS, MESSAGE, USER, ERRORS} = res.data;
           if (STATUS === 1) {
             new Toast({text : MESSAGE , type : 'success'});
             dispatch(loginUser(USER));
-            addUserToken(USER.id, await AsyncStorage.getItem('deviceToken'));
-            await AsyncStorage.setItem('isLoggedIn' , JSON.stringify(true));
+            const deviceToken = await AsyncStorage.getItem('deviceToken') ?? null;
+            await addUserToken(USER.id, deviceToken);
+            await AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
             await AsyncStorage.setItem('user', JSON.stringify(USER));
             setData({});
             setIsPolicyAccepted(false);
             navigation.navigate('Home');
           } else {
             if (ERRORS.hasOwnProperty('email')) {
-              new Toast({text : ERRORS.email[0] , type : 'danger'});
+              new Toast({
+                text : ERRORS.email[0], 
+                type : 'danger'
+              });
             } else {
-              new Toast({text :ERRORS.password[0] , type : 'danger'});
+              new Toast({
+                text :ERRORS.phone[0] ?? 'errorHappened',
+                type : 'danger'
+              });
             }
           } 
         })
         .catch((err) => {
           setIsLoading(false);
-          new Toast({text : err.response.data.MESSAGE , type : 'danger'});
+          new Toast({
+            text : err.response.data.MESSAGE ?? '',
+            type : 'danger'
+          });
         });
   };
 
@@ -103,15 +122,37 @@ const Register = () => {
     RNTwitterSignIn.init(TWITTER_COMSUMER_KEY, TWITTER_CONSUMER_SECRET);
      await RNTwitterSignIn.logIn()
       .then((data) => {
-        const {userName, email, userId} = data;
-        const userInfo = {
+        const {userName, email} = data;
+        setData({
           name: userName,
-          email: email,
-          phone: userId
-        };
-        submitForm(userInfo);
+          email
+        });
       });
   };
+
+  /**
+   * Apple auth
+   * @private
+   */
+  const  onAppleButtonPress = async () => {
+    // performs login request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+    // get current authentication state for user
+    // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+
+    // use credentialState response to ensure the user is authenticated
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+       const {user, fullName, email} = appleAuthRequestResponse;
+        setData({
+          name: fullName ? fullName : `${user.name.firstName} ${user.name.lastName}`,
+          email
+        });
+    }
+  }
   
   useEffect(() => {
     return () => setData({});
@@ -206,6 +247,20 @@ const Register = () => {
                 التسجل بحساب تويتر
               </Text>
           </BorderlessButton>
+          {
+            Platform.OS === 'ios' &&
+            <AppleButton
+              buttonType={AppleButton.Type.SIGN_UP}
+              style={{
+                width: 160,
+                height: 45,
+                color: '#FFF',
+                alignSelf: 'center',
+                marginTop: 20
+              }}
+              onPress={onAppleButtonPress}
+            />
+          }
         </View>
       </ScrollView>
     </SafeAreaView>

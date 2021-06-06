@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { DrawerActions } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/core';
@@ -19,51 +20,19 @@ import I18n from '../../lang/I18n';
 
 import api from '../../config/api';
 import endpoints from '../../config/endpoints';
-
-const GUEST_MENU = [
-  {
-    'title': I18n.t('services'),
-    'page': 'Services',
-    'icon': require('../../assets/icons/home-services.png')
-  }, {
-    'title': I18n.t('charts'),
-    'page': 'Charts',
-    'icon': require('../../assets/icons/home-charts.png')
-  }, {
-    'title': I18n.t('analysis'),
-    'page': 'Analysis',
-    'icon': require('../../assets/icons/home-analysis.png')
-  }, {
-    'title': I18n.t('register'),
-    'page': 'Register',
-    'icon': require('../../assets/icons/home-signUp.png')
-  }
-];
-
-AUTH_MENU = [
-  {
-    'title': I18n.t('charts'),
-    'page': 'Charts',
-    'icon': require('../../assets/icons/home-charts.png')
-  }, {
-    'title': I18n.t('recommendations'),
-    'page': 'Recommendations',
-    'icon': require('../../assets/icons/home-recommendations.png')
-  }, {
-    'title': I18n.t('reports'),
-    'page': 'Reports',
-    'icon': require('../../assets/icons/home-reports.png')
-  }, {
-    'title': I18n.t('analysis'),
-    'page': 'Analysis',
-    'icon': require('../../assets/icons/home-analysis.png')
-  }
-];
+import {
+  AUTH_MENU,
+  SUBSCRIBER_MENU,
+  GUEST_UNACTIVE_MENU,
+  GUEST_UNACTIVE_IOS_MENU,
+  GUEST_MENU,
+  GUEST_IOS_MENU
+} from './menus';
 
 const Home = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user);
-  const [menu, setMenu] = useState(GUEST_MENU);
+  const [menu, setMenu] = useState(Platform.OS === 'ios' ? GUEST_IOS_MENU : GUEST_MENU);
   const [data, setData] = useState(null);
 
 
@@ -74,15 +43,23 @@ const Home = () => {
   const getHomeStatistics = async () => {
     await api.get(endpoints.home)
       .then((res) => setData(res.data.DATA))
-      .catch((err) => alert(JSON.stringify(err.response.data)))
   }
 
   useEffect(() => {
-    if (user && user.id) setMenu(AUTH_MENU);
-    else setMenu(GUEST_MENU);
-      
     if ((!user || user === undefined) && !data) getHomeStatistics();
-      
+
+    // If user has account but not subscribed
+    if (user && user.activated == '1' && user.subscriber == '0') return setMenu(AUTH_MENU);
+    // If user subscribed
+    else if (user && user.activated == '1' && user.subscriber == '1') return setMenu(SUBSCRIBER_MENU);
+    // If user still not activated
+    else if (user && user.activated == '0' && user.subscriber == '0') {
+      return setMenu(Platform.OS === 'ios' ? GUEST_UNACTIVE_IOS_MENU : GUEST_UNACTIVE_MENU);
+    // If guest user
+    } else {
+      setMenu(Platform.OS === 'ios' ? GUEST_IOS_MENU : GUEST_MENU)
+    }
+    
   }, [user]);
 
   /**
@@ -135,16 +112,16 @@ const Home = () => {
         />
       </BorderlessButton>
       {
-        !user ?
-        <HeaderStatistics />
+        user && user.subscriber == '1' ?
+          <Text style={style.headerText}>
+            {I18n.t('homeHeaderText')}
+          </Text>   
         :
-        <Text style={style.headerText}>
-          {I18n.t('homeHeaderText')}
-        </Text>       
+          <HeaderStatistics />
       }
     </ImageBackground>
     <ScrollView style={{height: '100%'}}>
-      <ImageBackground source={require('../../assets/images/home-item-blue.png')} style={style.itemBg}>
+      <ImageBackground source={require('../../assets/images/home-item-bg.png')} style={style.itemBg}>
         <TouchableOpacity activeOpacity={.7} 
           onPress={() => navigation.navigate(menu[0].page)} 
           style={style.item}
@@ -159,7 +136,7 @@ const Home = () => {
           </Text>
         </TouchableOpacity>
       </ImageBackground>
-      <ImageBackground source={require('../../assets/images/home-item-gradient.png')} style={style.itemBg}>
+      <ImageBackground source={require('../../assets/images/home-item-bg.png')} style={style.itemBg}>
         <TouchableOpacity activeOpacity={.7} 
           onPress={() => navigation.navigate(menu[1].page)} 
           style={style.item}
@@ -174,7 +151,7 @@ const Home = () => {
           </Text> 
         </TouchableOpacity>
       </ImageBackground>
-      <ImageBackground source={require('../../assets/images/home-item-blue.png')} style={style.itemBg}>
+      <ImageBackground source={require('../../assets/images/home-item-bg.png')} style={style.itemBg}>
         <TouchableOpacity activeOpacity={.7} 
           onPress={() => navigation.navigate(menu[2].page)} 
           style={style.item}
@@ -190,14 +167,14 @@ const Home = () => {
         </TouchableOpacity>
       </ImageBackground>
       {
-        menu[3] &&
-        <ImageBackground source={require('../../assets/images/home-item-blue-dark.png')} style={style.itemBg}>
+        menu.length > 3 &&
+        <ImageBackground source={require('../../assets/images/home-item-bg.png')} style={style.itemBg}>
           <TouchableOpacity activeOpacity={.7} 
-            onPress={() => navigation.navigate(menu[3].page)} 
+            onPress={() => menu[3].page ? navigation.navigate(menu[3].page) : ''} 
             style={style.item}
           >
             <Image 
-              source={menu[3].icon}
+              source={menu[3]?.icon}
               resizeMode="contain"
               style={style.itemIcon}
             />
@@ -205,7 +182,7 @@ const Home = () => {
               {menu[3]?.title}
             </Text>
           </TouchableOpacity>
-         </ImageBackground>
+        </ImageBackground>
       }
     </ScrollView>
   </SafeAreaView>;

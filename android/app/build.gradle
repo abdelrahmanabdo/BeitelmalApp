@@ -134,8 +134,8 @@ android {
         applicationId "com.zplankton.beitelmal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 10102
+        versionName "1.1.1"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         ndk {

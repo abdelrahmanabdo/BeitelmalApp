@@ -33,7 +33,6 @@ export const AppNavigator = (props) => {
         options={{
           setTabLabel: false,
           headerShown: false,
-          drawerLabel: 'First page Option',
           headerLeft: () => (<NavigationDrawerStructure navigationProps = {navigation}/>),
         }}
       />

@@ -42,7 +42,7 @@ export default StyleSheet.create({
     width: 100,
     height: 100,
     alignSelf: 'center',
-    marginTop: height * 0.04,
+    marginTop: height * 0.035,
     marginBottom: 25,
   },
   formContainer: {
@@ -117,5 +117,10 @@ export default StyleSheet.create({
   twitterButtonText: {
     color: '#FFF',
     fontSize: 14,
+  },
+  appleButton: {
+    
+    width: 160,
+    height: 45,
   }
 });

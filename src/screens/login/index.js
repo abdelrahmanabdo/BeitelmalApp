@@ -8,6 +8,7 @@ import {
   Image,
   NativeModules,
   StatusBar,
+  Platform,
 } from 'react-native';
 const { RNTwitterSignIn } = NativeModules;
 import AsyncStorage from '@react-native-community/async-storage';
@@ -19,7 +20,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import api from '../../config/api';
 import endpoints from '../../config/endpoints';
 import {loginUser} from '../../redux/actions/user';
-
+import {
+  AppleButton,
+  appleAuth
+} from '@invertase/react-native-apple-authentication';
 import style from './styles';
 import I18n from '../../lang/I18n';
 import Toast from '../../components/toast';
@@ -36,6 +40,8 @@ const Login = () => {
    */
   const validate = () => {
     if (!data.email) return  new Toast({text : I18n.t('emailRequired') , type : 'danger'}), false;
+    if (!data.email.includes('@') || !data.email.includes('.'))
+      return  new Toast({text : I18n.t('validEmail') , type : 'danger'}), false;
     if (!data.password) return  new Toast({text : I18n.t('passwordRequired') , type : 'danger'}), false;
     return true;
   };
@@ -62,7 +68,9 @@ const Login = () => {
             await AsyncStorage.setItem('isLoggedIn' , JSON.stringify(true));
             await AsyncStorage.setItem('user', JSON.stringify(USER));
             navigation.navigate('Home');
-          } else {
+          } else if (STATUS === 3) {
+            new Toast({text : ERRORS , type : 'danger'});
+          }  else {
             if (ERRORS.hasOwnProperty('email')) {
               new Toast({text : ERRORS.email[0] , type : 'danger'});
             } else {
@@ -93,10 +101,34 @@ const Login = () => {
     RNTwitterSignIn.init(TWITTER_COMSUMER_KEY, TWITTER_CONSUMER_SECRET);
      await RNTwitterSignIn.logIn()
       .then(async (data) => {
-        const {userName, email} = data;
-        submitForm(true, {email});
+        const {email} = data;
+        submitForm(true, { email });
       });
   };
+
+  /**
+   * Apple auth
+   * @private
+   */
+  const onAppleButtonPress = async () => {
+    // performs login request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+    // get current authentication state for user
+    // /!\ This method must be tested on a real device. On the iOS simulator it always throws an error.
+    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+
+    // use credentialState response to ensure the user is authenticated
+    if (credentialState === appleAuth.State.AUTHORIZED) {
+       const {user, fullName, email} = appleAuthRequestResponse;
+        setData({
+          name: fullName ? fullName : `${user.name.firstName} ${user.name.lastName}`,
+          email: email ? email : user.email
+        });
+    }
+  }
 
   useEffect(() => {
   }, []);
@@ -160,6 +192,20 @@ const Login = () => {
               التسجل بحساب تويتر
             </Text>
         </BorderlessButton>
+          {
+            Platform.OS === 'ios' &&
+            <AppleButton
+              buttonType={AppleButton.Type.SIGN_IN}
+              style={{
+                width: 160,
+                height: 45,
+                color: '#FFF',
+                alignSelf: 'center',
+                marginTop: 20
+              }}
+              onPress={onAppleButtonPress}
+            />
+          }
       </View>
     </SafeAreaView>
   </View>

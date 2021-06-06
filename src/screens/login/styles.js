@@ -16,7 +16,7 @@ export default StyleSheet.create({
   },
   pageContainer: {
     position: 'absolute',
-    top: 40,
+    top: 35,
     width: '100%',
     height: '100%',
     alignSelf: 'center',
@@ -45,7 +45,7 @@ export default StyleSheet.create({
     width: 100,
     height: 100,
     alignSelf: 'center',
-    marginTop: height * 0.04,
+    marginTop: height * 0.035,
     marginBottom: 25,
   },
   formContainer: {

@@ -67,7 +67,7 @@ const Recommendations = () => {
           ...res.data.SECTORS
         ];
         setSectors(sectorsData);
-        getAllRecommendations(selectedTypes, sectorsData[0].id, stockTypesData[1].id);
+        getAllRecommendations(selectedTypes, sectorsData[0].id, stockTypesData[0].id);
       });
   };
 
@@ -81,12 +81,13 @@ const Recommendations = () => {
     ) => {
     let finalURL = `${endpoints.recommendations}?id=${user.id}`;
     const typesString = currentTypes.reduce((acc, current) => acc + `rec_type[${current}]=${current}&`, '');
-    if (currentSelectedStockType) finalURL += `&stock_type_id=${currentSelectedStockType}`;
+    if (currentSelectedStockType != null) finalURL += `&stock_type_id=${currentSelectedStockType}`;
     if (typesString) finalURL += `&${typesString}`;
     if (currentSelectedSector) finalURL += `&sector_id=${currentSelectedSector}`;
+
     await api.get(finalURL)
-      .then((res) => setData(res.data.RECOMMENDATIONS.data))
-      .catch((err) => alert(JSON.stringify(err.response.data)));
+      .then((res) => setData(res.data.RECOMMENDATIONS))
+      .catch((err) => {});
   };
 
   useEffect(() => {
@@ -186,10 +187,15 @@ const Recommendations = () => {
             
           </Text>
         :
+        <>
+          <Text style={style.resultsNumber}>
+             اجمالي عدد التوصيات <Text style={{fontWeight: 'bold', fontSize: 17, color: '#4F4F4F'}}>{data.length}</Text> توصية
+          </Text>
           <FlatList 
             data={data}
             renderItem={({item}) => <Card key={item.id} data={item} />}
           />
+        </>
       }
     </View>
   </View>

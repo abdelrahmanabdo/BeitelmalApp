@@ -29,4 +29,11 @@ export default StyleSheet.create({
   dropdownRow: {
     marginTop: 20,
   },
+  resultsNumber: {
+    width: width - 40,
+    alignSelf: 'center',
+    marginBottom: 15,
+    textAlign: 'left',
+    fontSize: 15.5
+  }
 });

@@ -29,7 +29,6 @@ export default StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     textAlign: I18nManager.isRTL ? 'left' : 'right'
-
   },
   status: {
     flex: 1,
@@ -43,15 +42,15 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 30,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
+    borderRadius: 10,
+    overflow: 'hidden'
   },
   columnContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   whiteText: {
     color: '#FFF',
@@ -60,7 +59,7 @@ export default StyleSheet.create({
   footer: {
     backgroundColor: '#E2DADA',
     padding: 20,
+    borderRadius: 10,
     overflow: 'hidden'
   }
-
 });

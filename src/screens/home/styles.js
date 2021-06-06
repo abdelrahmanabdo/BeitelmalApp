@@ -3,7 +3,7 @@ import {  StyleSheet, Dimensions, I18nManager, Platform } from 'react-native';
 const { width, height } = Dimensions.get('window');
 export default StyleSheet.create({
   container: {
-    backgroundColor: '#1B377F'
+    backgroundColor: '#175193'
   },
   header: {
     display: 'flex',
@@ -75,14 +75,18 @@ export default StyleSheet.create({
     
   },
   itemIcon: {
+    flex:1,
     width: width * .25,
     height: width * .18,
     marginHorizontal: 10
   },
   itemText: {
+    flex: 3,
     fontSize: 24,
     color: '#FFF',
-    marginStart: 20,
+    marginStart: 15,
     fontWeight: Platform.OS === 'ios' ? '500' : '700',
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
+
   }
 });

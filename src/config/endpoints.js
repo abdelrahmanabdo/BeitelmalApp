@@ -16,6 +16,6 @@ export default {
   'login': 'auth/login',
   'register': 'auth/register',
   'freeRegister': 'auth/freeregister',
-  'notifications': 'notification'
+  'notifications': 'notification',
 }
 

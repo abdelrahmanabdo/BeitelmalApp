@@ -23,27 +23,27 @@ import Policy from '../screens/policy';
 import Welcome from '../screens/welcome';
 import AsyncStorage from '@react-native-community/async-storage';
 
-  const Stack = createStackNavigator();
-  const config = {
-    animation :'spring',
-    config: {
-      stiffness: 50,
-      damping: 10,
+const Stack = createStackNavigator();
+const config = {
+  animation :'spring',
+  config: {
+    stiffness: 50,
+    damping: 10,
       //  mass: 1,
       //  restDisplacementThreshold: 0.00,
       //  restSpeedThreshold: 0.00,      
-    },
-  };
+  },
+};
 
-  const options = {
-    headerStyle: {
-      backgroundColor: '#13314F',
-    },
-    headerTintColor: '#FFF'
-  };
+const options = {
+  headerStyle: {
+    backgroundColor: '#13314F',
+   },
+  headerTintColor: '#FFF'
+};
 
 
-  export function StackNavigator() {
+export function StackNavigator() {
   const isFirstTime = useSelector((state) => state.isFirstTime);
 
   return (
@@ -83,14 +83,16 @@ import AsyncStorage from '@react-native-community/async-storage';
                       }}
         />
         <Stack.Screen name="Reports" 
+                      path = "reports"
                       component={Reports}
                       options = {{
                         ...options,
-                        title: 'التقارير',
+                        title: 'التقارير والتحليلات الفنية',
                         // headerLeft: () => (<NavigationDrawerStructure navigationProps = {navigation}/>),
                       }}
         />
         <Stack.Screen name="Recommendations" 
+                      path = "recommendations"
                       component={Recommendations}
                       options = {{
                         ...options,
@@ -108,14 +110,14 @@ import AsyncStorage from '@react-native-community/async-storage';
                       component={Charts}
                       options = {{
                         ...options,
-                        title: 'معدل الأداء'
+                        title: 'معدلات الأداء'
                       }}
         />
         <Stack.Screen name = "Analysis"
                       component={Analysis}
                       options = {{
                         ...options,
-                        title: 'التحليلات الفنية'
+                        title: 'ماهو جديد'
                       }}
         />
         <Stack.Screen name="AboutUs" 
